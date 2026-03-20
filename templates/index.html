@@ -91,28 +91,16 @@
 <div class="header">
   <div class="header-title">Market Terminal</div>
   <div class="ticker-bar">
-    <div class="ticker-item"><span class="ticker-label">Nifty 50: </span><span class="ticker-value">23,500</span></div>
-    <div class="ticker-item"><span class="ticker-label">Bank Nifty: </span><span class="ticker-value">51,200</span></div>
-    <div class="ticker-item"><span class="ticker-label">India VIX: </span><span class="ticker-value">13.5</span></div>
+    <div class="ticker-item"><span class="ticker-label">Nifty 50: </span><span class="ticker-value">{{ "{:,.2f}".format(indices.nifty) }}</span></div>
+    <div class="ticker-item"><span class="ticker-label">Bank Nifty: </span><span class="ticker-value">{{ "{:,.2f}".format(indices.banknifty) }}</span></div>
+    <div class="ticker-item"><span class="ticker-label">Sensex: </span><span class="ticker-value">{{ "{:,.2f}".format(indices.sensex) }}</span></div>
   </div>
 </div>
 
 <div class="grid" id="grid"></div>
 
 <script>
-const stocks = [
-  { symbol: "RELIANCE",   price: 2945.30, change:  38.50, pct:  1.32, high: 2968.00, low: 2901.10, vol: "12.4M" },
-  { symbol: "HDFCBANK",   price: 1732.15, change:  -8.70, pct: -0.50, high: 1748.00, low: 1725.30, vol: "8.7M"  },
-  { symbol: "TCS",        price: 3890.60, change:  52.10, pct:  1.36, high: 3912.00, low: 3835.00, vol: "3.2M"  },
-  { symbol: "SUNPHARMA",  price: 1185.40, change:  15.20, pct:  1.30, high: 1192.00, low: 1168.50, vol: "4.1M"  },
-  { symbol: "HAL",        price: 4520.75, change: -63.40, pct: -1.38, high: 4590.00, low: 4498.00, vol: "1.8M"  },
-  { symbol: "HINDUNILVR", price: 2415.90, change:  -5.30, pct: -0.22, high: 2438.00, low: 2402.10, vol: "2.9M"  },
-  { symbol: "TATAMOTORS", price:  780.25, change:  12.60, pct:  1.64, high:  788.00, low:  765.40, vol: "18.6M" },
-  { symbol: "NTPC",       price:  365.80, change:   4.90, pct:  1.36, high:  368.50, low:  360.10, vol: "9.3M"  },
-  { symbol: "AXISBANK",   price: 1148.55, change: -14.20, pct: -1.22, high: 1165.00, low: 1140.30, vol: "7.1M"  },
-  { symbol: "ICICIBANK",  price: 1265.40, change:  21.30, pct:  1.71, high: 1272.00, low: 1241.80, vol: "10.5M" },
-];
-
+const stocks = {{ stocks | tojson }};
 const grid = document.getElementById("grid");
 
 stocks.forEach(s => {
