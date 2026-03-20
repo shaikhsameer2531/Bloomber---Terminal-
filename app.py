@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, jsonify
 import yfinance as yf
 import requests
 import math
@@ -251,6 +251,51 @@ def index():
         expiry=expiry,
         spot=spot,
     )
+
+
+SYSTEM_PROMPT = (
+    "You are a senior Indian equity market analyst. You understand NSE/BSE, "
+    "F&O mechanics, lot sizes, expiry cycles, India VIX, PCR, OI analysis, "
+    "and technical indicators. Give concise, actionable analysis. Use ₹ for prices."
+)
+
+
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    body = request.get_json(force=True)
+    api_key = body.get("api_key", "")
+    user_msg = body.get("message", "")
+
+    if not api_key:
+        return jsonify({"error": "API key not set. Click the ⚙ icon to configure."}), 400
+    if not user_msg:
+        return jsonify({"error": "Empty message."}), 400
+
+    try:
+        resp = requests.post(
+            "https://api.anthropic.com/v1/messages",
+            headers={
+                "x-api-key": api_key,
+                "anthropic-version": "2023-06-01",
+                "content-type": "application/json",
+            },
+            json={
+                "model": "claude-sonnet-4-6",
+                "max_tokens": 1024,
+                "system": SYSTEM_PROMPT,
+                "messages": [{"role": "user", "content": user_msg}],
+            },
+            timeout=30,
+        )
+        resp.raise_for_status()
+        data = resp.json()
+        text = data["content"][0]["text"]
+        return jsonify({"reply": text})
+    except requests.exceptions.HTTPError as e:
+        err_body = e.response.text if e.response is not None else str(e)
+        return jsonify({"error": f"Anthropic API error: {err_body}"}), 502
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 if __name__ == "__main__":
