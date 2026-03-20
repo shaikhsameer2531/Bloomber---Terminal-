@@ -84,6 +84,94 @@
     border-top: 1px solid #1a3a1a;
     padding-top: 8px;
   }
+
+  /* Options Chain Panel */
+  .options-panel {
+    margin: 0 24px 24px;
+    background: #111;
+    border: 1px solid #1a3a1a;
+    padding: 20px;
+  }
+  .options-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .options-title {
+    font-size: 15px;
+    color: #ff8c00;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+  .options-meta {
+    display: flex;
+    gap: 24px;
+    font-size: 13px;
+    flex-wrap: wrap;
+  }
+  .options-meta span { white-space: nowrap; }
+  .options-meta .label { color: #888; }
+  .options-meta .val { color: #33ff33; font-weight: bold; }
+  .pcr-badge {
+    background: #1a3a1a;
+    padding: 4px 12px;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  .chain-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .chain-table thead th {
+    color: #888;
+    font-weight: normal;
+    text-transform: uppercase;
+    font-size: 11px;
+    letter-spacing: 1px;
+    padding: 8px 10px;
+    border-bottom: 1px solid #1a3a1a;
+    text-align: right;
+  }
+  .chain-table thead th.strike-hdr {
+    text-align: center;
+    color: #ff8c00;
+  }
+  .chain-table thead th.ce-hdr { color: #33ff33; }
+  .chain-table thead th.pe-hdr { color: #ff3333; }
+  .chain-table tbody td {
+    padding: 7px 10px;
+    text-align: right;
+    border-bottom: 1px solid #0d0d0d;
+    white-space: nowrap;
+  }
+  .chain-table tbody td.strike-col {
+    text-align: center;
+    color: #fff;
+    font-weight: bold;
+    background: #0d0d0d;
+  }
+  .chain-table tbody td.ce-col { color: #33ff33; }
+  .chain-table tbody td.pe-col { color: #ff3333; }
+  .chain-table tbody tr.atm-row {
+    background: rgba(51, 255, 51, 0.08);
+    border-top: 1px solid #33ff33;
+    border-bottom: 1px solid #33ff33;
+  }
+  .chain-table tbody tr.atm-row td.strike-col {
+    background: rgba(51, 255, 51, 0.15);
+    color: #33ff33;
+  }
+  .chain-table tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
+  .chain-table tbody tr.atm-row:hover { background: rgba(51, 255, 51, 0.12); }
+  .oi-up { color: #33ff33; }
+  .oi-down { color: #ff3333; }
+  .divider { border-top: 1px solid #1a3a1a; margin: 0 24px; }
+  .chain-scroll { overflow-x: auto; }
 </style>
 </head>
 <body>
@@ -98,6 +186,35 @@
 </div>
 
 <div class="grid" id="grid"></div>
+
+<div class="divider"></div>
+
+<div class="options-panel">
+  <div class="options-header">
+    <div class="options-title">Options Chain &mdash; NIFTY 50</div>
+    <div class="options-meta">
+      <span><span class="label">Expiry: </span><span class="val">{{ expiry }}</span></span>
+      <span><span class="label">Spot: </span><span class="val">{{ "{:,.2f}".format(spot) }}</span></span>
+      <span class="pcr-badge"><span class="label">PCR: </span><span class="val">{{ pcr }}</span></span>
+    </div>
+  </div>
+  <div class="chain-scroll">
+    <table class="chain-table">
+      <thead>
+        <tr>
+          <th class="ce-hdr">CE OI Chg</th>
+          <th class="ce-hdr">CE OI</th>
+          <th class="ce-hdr">CE LTP</th>
+          <th class="strike-hdr">Strike</th>
+          <th class="pe-hdr">PE LTP</th>
+          <th class="pe-hdr">PE OI</th>
+          <th class="pe-hdr">PE OI Chg</th>
+        </tr>
+      </thead>
+      <tbody id="chain-body"></tbody>
+    </table>
+  </div>
+</div>
 
 <script>
 const stocks = {{ stocks | tojson }};
@@ -123,6 +240,31 @@ stocks.forEach(s => {
         <span>Vol: ${s.vol}</span>
       </div>
     </div>`;
+});
+
+// Options chain
+const chain = {{ chain | tojson }};
+const chainBody = document.getElementById("chain-body");
+
+function fmtNum(n) {
+  return n.toLocaleString("en-IN");
+}
+
+chain.forEach(r => {
+  const cls = r.is_atm ? ' class="atm-row"' : '';
+  const ceChgCls = r.ce_oi_change > 0 ? 'oi-up' : (r.ce_oi_change < 0 ? 'oi-down' : '');
+  const peChgCls = r.pe_oi_change > 0 ? 'oi-up' : (r.pe_oi_change < 0 ? 'oi-down' : '');
+  const ceChgSign = r.ce_oi_change > 0 ? '+' : '';
+  const peChgSign = r.pe_oi_change > 0 ? '+' : '';
+  chainBody.innerHTML += `<tr${cls}>
+    <td class="ce-col ${ceChgCls}">${ceChgSign}${fmtNum(r.ce_oi_change)}</td>
+    <td class="ce-col">${fmtNum(r.ce_oi)}</td>
+    <td class="ce-col">${r.ce_ltp.toFixed(2)}</td>
+    <td class="strike-col">${fmtNum(r.strike)}</td>
+    <td class="pe-col">${r.pe_ltp.toFixed(2)}</td>
+    <td class="pe-col">${fmtNum(r.pe_oi)}</td>
+    <td class="pe-col ${peChgCls}">${peChgSign}${fmtNum(r.pe_oi_change)}</td>
+  </tr>`;
 });
 </script>
 
