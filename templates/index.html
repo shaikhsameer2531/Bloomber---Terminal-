@@ -11,7 +11,11 @@
     color: #33ff33;
     font-family: 'Courier New', Courier, monospace;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
+
+  /* ── Header ── */
   .header {
     background: #111;
     border-bottom: 1px solid #1a3a1a;
@@ -22,21 +26,113 @@
     flex-wrap: wrap;
     gap: 8px;
   }
-  .header-title {
-    font-size: 13px;
-    color: #ff8c00;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
-  .ticker-bar {
-    display: flex;
-    gap: 28px;
-    font-size: 14px;
-    flex-wrap: wrap;
-  }
+  .header-title { font-size: 13px; color: #ff8c00; letter-spacing: 2px; text-transform: uppercase; }
+  .ticker-bar { display: flex; gap: 28px; font-size: 14px; flex-wrap: wrap; }
   .ticker-item { white-space: nowrap; }
   .ticker-label { color: #888; }
   .ticker-value { color: #33ff33; font-weight: bold; }
+
+  /* ── Main Layout ── */
+  .main-layout {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
+  .content-area {
+    flex: 1;
+    overflow-y: auto;
+    min-width: 0;
+  }
+
+  /* ── Sidebar Watchlist ── */
+  .sidebar {
+    width: 300px;
+    min-width: 300px;
+    background: #0d0d0d;
+    border-left: 1px solid #1a3a1a;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border-bottom: 1px solid #1a3a1a;
+  }
+  .sidebar-title { font-size: 13px; color: #ff8c00; letter-spacing: 2px; text-transform: uppercase; }
+  .add-stock-btn {
+    background: none;
+    border: 1px solid #1a3a1a;
+    color: #33ff33;
+    font-size: 18px;
+    width: 28px; height: 28px;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.2s;
+  }
+  .add-stock-btn:hover { border-color: #33ff33; }
+  .add-stock-row {
+    display: none;
+    padding: 8px 16px;
+    gap: 6px;
+    border-bottom: 1px solid #1a3a1a;
+  }
+  .add-stock-row.visible { display: flex; }
+  .add-stock-input {
+    flex: 1;
+    background: #0a0a0a;
+    border: 1px solid #1a3a1a;
+    color: #33ff33;
+    font-family: inherit;
+    font-size: 12px;
+    padding: 6px 8px;
+    outline: none;
+    text-transform: uppercase;
+  }
+  .add-stock-input:focus { border-color: #33ff33; }
+  .add-stock-submit {
+    background: #1a3a1a;
+    border: 1px solid #33ff33;
+    color: #33ff33;
+    font-family: inherit;
+    font-size: 11px;
+    padding: 6px 12px;
+    cursor: pointer;
+  }
+  .watchlist-items {
+    flex: 1;
+    overflow-y: auto;
+  }
+  .wl-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 16px;
+    border-bottom: 1px solid #111;
+    cursor: pointer;
+    transition: background 0.15s;
+    gap: 8px;
+  }
+  .wl-item:hover { background: #151515; }
+  .wl-item.active { background: #1a2a1a; border-left: 2px solid #33ff33; }
+  .wl-info { flex: 1; min-width: 0; }
+  .wl-symbol { font-size: 13px; color: #fff; font-weight: bold; }
+  .wl-price-row { display: flex; align-items: center; gap: 8px; font-size: 11px; margin-top: 2px; }
+  .wl-cmp { color: #ccc; }
+  .wl-arrow { font-size: 10px; }
+  .wl-rsi { font-size: 10px; color: #555; }
+  .wl-remove {
+    background: none; border: none; color: #333; font-size: 14px;
+    cursor: pointer; padding: 2px 4px; font-family: inherit;
+    transition: color 0.2s;
+  }
+  .wl-remove:hover { color: #ff3333; }
+
+  /* ── Stock Cards Grid ── */
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -51,284 +147,165 @@
     flex-direction: column;
     gap: 10px;
   }
-  .card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .symbol {
-    font-size: 16px;
-    font-weight: bold;
-    color: #fff;
-  }
-  .exchange {
-    font-size: 11px;
-    color: #555;
-  }
-  .price {
-    font-size: 22px;
-    font-weight: bold;
-  }
-  .change-row {
-    display: flex;
-    gap: 14px;
-    font-size: 13px;
-  }
+  .card-top { display: flex; justify-content: space-between; align-items: center; }
+  .symbol { font-size: 16px; font-weight: bold; color: #fff; }
+  .exchange { font-size: 11px; color: #555; }
+  .price { font-size: 22px; font-weight: bold; }
+  .change-row { display: flex; gap: 14px; font-size: 13px; }
   .up { color: #33ff33; }
   .down { color: #ff3333; }
   .meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 11px;
-    color: #555;
-    border-top: 1px solid #1a3a1a;
-    padding-top: 8px;
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: #555;
+    border-top: 1px solid #1a3a1a; padding-top: 8px;
   }
 
-  /* Options Chain Panel */
-  .options-panel {
+  /* ── Technicals Panel ── */
+  .technicals-panel {
     margin: 0 24px 24px;
     background: #111;
     border: 1px solid #1a3a1a;
     padding: 20px;
+    display: none;
   }
-  .options-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
+  .technicals-panel.visible { display: block; }
+  .tech-header {
+    display: flex; align-items: center; justify-content: space-between;
     margin-bottom: 16px;
   }
-  .options-title {
-    font-size: 15px;
-    color: #ff8c00;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+  .tech-title { font-size: 15px; color: #ff8c00; letter-spacing: 2px; text-transform: uppercase; }
+  .tech-close {
+    background: none; border: 1px solid #1a3a1a; color: #555;
+    font-size: 16px; cursor: pointer; padding: 2px 8px; font-family: inherit;
   }
-  .options-meta {
-    display: flex;
-    gap: 24px;
-    font-size: 13px;
-    flex-wrap: wrap;
+  .tech-close:hover { color: #ff3333; border-color: #ff3333; }
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 14px;
   }
-  .options-meta span { white-space: nowrap; }
-  .options-meta .label { color: #888; }
-  .options-meta .val { color: #33ff33; font-weight: bold; }
-  .pcr-badge {
-    background: #1a3a1a;
-    padding: 4px 12px;
-    font-weight: bold;
-    font-size: 14px;
+  .tech-card {
+    background: #0a0a0a;
+    border: 1px solid #1a3a1a;
+    padding: 14px;
   }
+  .tech-card-title {
+    font-size: 11px; color: #888; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 8px;
+  }
+  .tech-val { font-size: 18px; font-weight: bold; }
+  .tech-sub { font-size: 11px; color: #555; margin-top: 4px; }
+  .tech-row { display: flex; justify-content: space-between; font-size: 12px; padding: 3px 0; }
+  .tech-row-label { color: #888; }
+  .tech-loading { color: #555; font-style: italic; font-size: 13px; }
 
-  .chain-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
+  /* ── Options Chain Panel ── */
+  .panel { margin: 0 24px 24px; background: #111; border: 1px solid #1a3a1a; padding: 20px; }
+  .panel-header {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px; margin-bottom: 16px;
   }
+  .panel-title { font-size: 15px; color: #ff8c00; letter-spacing: 2px; text-transform: uppercase; }
+  .panel-meta { display: flex; gap: 24px; font-size: 13px; flex-wrap: wrap; }
+  .panel-meta span { white-space: nowrap; }
+  .panel-meta .label { color: #888; }
+  .panel-meta .val { color: #33ff33; font-weight: bold; }
+  .pcr-badge { background: #1a3a1a; padding: 4px 12px; font-weight: bold; font-size: 14px; }
+
+  .chain-table { width: 100%; border-collapse: collapse; font-size: 13px; }
   .chain-table thead th {
-    color: #888;
-    font-weight: normal;
-    text-transform: uppercase;
-    font-size: 11px;
-    letter-spacing: 1px;
-    padding: 8px 10px;
-    border-bottom: 1px solid #1a3a1a;
-    text-align: right;
+    color: #888; font-weight: normal; text-transform: uppercase;
+    font-size: 11px; letter-spacing: 1px; padding: 8px 10px;
+    border-bottom: 1px solid #1a3a1a; text-align: right;
   }
-  .chain-table thead th.strike-hdr {
-    text-align: center;
-    color: #ff8c00;
-  }
+  .chain-table thead th.strike-hdr { text-align: center; color: #ff8c00; }
   .chain-table thead th.ce-hdr { color: #33ff33; }
   .chain-table thead th.pe-hdr { color: #ff3333; }
   .chain-table tbody td {
-    padding: 7px 10px;
-    text-align: right;
-    border-bottom: 1px solid #0d0d0d;
-    white-space: nowrap;
+    padding: 7px 10px; text-align: right;
+    border-bottom: 1px solid #0d0d0d; white-space: nowrap;
   }
-  .chain-table tbody td.strike-col {
-    text-align: center;
-    color: #fff;
-    font-weight: bold;
-    background: #0d0d0d;
-  }
+  .chain-table tbody td.strike-col { text-align: center; color: #fff; font-weight: bold; background: #0d0d0d; }
   .chain-table tbody td.ce-col { color: #33ff33; }
   .chain-table tbody td.pe-col { color: #ff3333; }
-  .chain-table tbody tr.atm-row {
-    background: rgba(51, 255, 51, 0.08);
-    border-top: 1px solid #33ff33;
-    border-bottom: 1px solid #33ff33;
-  }
-  .chain-table tbody tr.atm-row td.strike-col {
-    background: rgba(51, 255, 51, 0.15);
-    color: #33ff33;
-  }
-  .chain-table tbody tr:hover { background: rgba(255, 255, 255, 0.03); }
-  .chain-table tbody tr.atm-row:hover { background: rgba(51, 255, 51, 0.12); }
+  .chain-table tbody tr.atm-row { background: rgba(51,255,51,0.08); border-top: 1px solid #33ff33; border-bottom: 1px solid #33ff33; }
+  .chain-table tbody tr.atm-row td.strike-col { background: rgba(51,255,51,0.15); color: #33ff33; }
+  .chain-table tbody tr:hover { background: rgba(255,255,255,0.03); }
+  .chain-table tbody tr.atm-row:hover { background: rgba(51,255,51,0.12); }
   .oi-up { color: #33ff33; }
   .oi-down { color: #ff3333; }
   .divider { border-top: 1px solid #1a3a1a; margin: 0 24px; }
   .chain-scroll { overflow-x: auto; }
 
-  /* AI Command Bar */
-  .ai-panel {
-    margin: 0 24px 24px;
-    background: #111;
-    border: 1px solid #1a3a1a;
-    padding: 20px;
-  }
-  .ai-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-  .ai-title {
-    font-size: 15px;
-    color: #ff8c00;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-  }
+  /* ── AI Command Bar ── */
+  .ai-panel { margin: 0 24px 24px; background: #111; border: 1px solid #1a3a1a; padding: 20px; }
+  .ai-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .ai-title { font-size: 15px; color: #ff8c00; letter-spacing: 2px; text-transform: uppercase; }
   .ai-settings-btn {
-    background: none;
-    border: 1px solid #1a3a1a;
-    color: #555;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 4px 10px;
-    font-family: inherit;
+    background: none; border: 1px solid #1a3a1a; color: #555;
+    font-size: 18px; cursor: pointer; padding: 4px 10px; font-family: inherit;
     transition: color 0.2s, border-color 0.2s;
   }
   .ai-settings-btn:hover { color: #ff8c00; border-color: #ff8c00; }
   .ai-settings-btn.configured { color: #33ff33; border-color: #33ff33; }
-  .ai-input-row {
-    display: flex;
-    gap: 10px;
-  }
+  .ai-input-row { display: flex; gap: 10px; }
   .ai-input {
-    flex: 1;
-    background: #0a0a0a;
-    border: 1px solid #1a3a1a;
-    color: #33ff33;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 14px;
-    padding: 12px 14px;
-    outline: none;
+    flex: 1; background: #0a0a0a; border: 1px solid #1a3a1a;
+    color: #33ff33; font-family: inherit; font-size: 14px; padding: 12px 14px; outline: none;
   }
   .ai-input::placeholder { color: #2a5a2a; }
   .ai-input:focus { border-color: #33ff33; }
   .ai-send {
-    background: #1a3a1a;
-    border: 1px solid #33ff33;
-    color: #33ff33;
-    font-family: inherit;
-    font-size: 13px;
-    padding: 12px 20px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: background 0.2s;
+    background: #1a3a1a; border: 1px solid #33ff33; color: #33ff33;
+    font-family: inherit; font-size: 13px; padding: 12px 20px;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
   }
   .ai-send:hover { background: #2a5a2a; }
   .ai-send:disabled { opacity: 0.4; cursor: not-allowed; }
   .ai-response {
-    margin-top: 14px;
-    padding: 14px;
-    background: #0a0a0a;
-    border: 1px solid #1a3a1a;
-    color: #33ff33;
-    font-size: 13px;
-    line-height: 1.6;
-    white-space: pre-wrap;
-    word-wrap: break-word;
-    display: none;
-    max-height: 400px;
-    overflow-y: auto;
+    margin-top: 14px; padding: 14px; background: #0a0a0a;
+    border: 1px solid #1a3a1a; color: #33ff33; font-size: 13px;
+    line-height: 1.6; white-space: pre-wrap; word-wrap: break-word;
+    display: none; max-height: 400px; overflow-y: auto;
   }
   .ai-response.visible { display: block; }
   .ai-response.error { color: #ff3333; border-color: #3a1a1a; }
-  .ai-typing {
-    color: #555;
-    font-style: italic;
-  }
+  .ai-typing { color: #555; font-style: italic; }
 
-  /* Settings Modal */
+  /* ── Modal ── */
   .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8); z-index: 1000;
+    align-items: center; justify-content: center;
   }
   .modal-overlay.visible { display: flex; }
-  .modal {
-    background: #111;
-    border: 1px solid #1a3a1a;
-    padding: 24px;
-    width: 480px;
-    max-width: 90vw;
-  }
-  .modal-title {
-    font-size: 14px;
-    color: #ff8c00;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-  .modal label {
-    display: block;
-    color: #888;
-    font-size: 12px;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
+  .modal { background: #111; border: 1px solid #1a3a1a; padding: 24px; width: 480px; max-width: 90vw; }
+  .modal-title { font-size: 14px; color: #ff8c00; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 16px; }
+  .modal label { display: block; color: #888; font-size: 12px; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 1px; }
   .modal input {
-    width: 100%;
-    background: #0a0a0a;
-    border: 1px solid #1a3a1a;
-    color: #33ff33;
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 13px;
-    padding: 10px 12px;
-    outline: none;
-    margin-bottom: 16px;
+    width: 100%; background: #0a0a0a; border: 1px solid #1a3a1a;
+    color: #33ff33; font-family: inherit; font-size: 13px;
+    padding: 10px 12px; outline: none; margin-bottom: 16px;
   }
   .modal input:focus { border-color: #33ff33; }
-  .modal-actions {
-    display: flex;
-    gap: 10px;
-    justify-content: flex-end;
-  }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
   .modal-btn {
-    background: #1a3a1a;
-    border: 1px solid #33ff33;
-    color: #33ff33;
-    font-family: inherit;
-    font-size: 12px;
-    padding: 8px 18px;
-    cursor: pointer;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    background: #1a3a1a; border: 1px solid #33ff33; color: #33ff33;
+    font-family: inherit; font-size: 12px; padding: 8px 18px;
+    cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
   }
   .modal-btn:hover { background: #2a5a2a; }
-  .modal-btn.cancel {
-    border-color: #555;
-    color: #555;
-    background: transparent;
-  }
+  .modal-btn.cancel { border-color: #555; color: #555; background: transparent; }
   .modal-btn.cancel:hover { color: #888; border-color: #888; }
-  .key-status {
-    font-size: 11px;
-    margin-bottom: 12px;
-  }
+  .key-status { font-size: 11px; margin-bottom: 12px; }
   .key-status.set { color: #33ff33; }
   .key-status.unset { color: #ff3333; }
+
+  /* ── Mobile ── */
+  @media (max-width: 768px) {
+    .main-layout { flex-direction: column; }
+    .sidebar { width: 100%; min-width: 0; border-left: none; border-top: 1px solid #1a3a1a; max-height: 300px; }
+  }
 </style>
 </head>
 <body>
@@ -342,49 +319,76 @@
   </div>
 </div>
 
-<div class="grid" id="grid"></div>
+<div class="main-layout">
+  <!-- Main Content -->
+  <div class="content-area">
+    <div class="grid" id="grid"></div>
 
-<div class="divider"></div>
+    <!-- Technicals Panel (shown on watchlist click) -->
+    <div class="technicals-panel" id="tech-panel">
+      <div class="tech-header">
+        <div class="tech-title" id="tech-title">Technicals</div>
+        <button class="tech-close" id="tech-close">&times;</button>
+      </div>
+      <div id="tech-content"><span class="tech-loading">Select a stock from the watchlist...</span></div>
+    </div>
 
-<div class="options-panel">
-  <div class="options-header">
-    <div class="options-title">Options Chain &mdash; NIFTY 50</div>
-    <div class="options-meta">
-      <span><span class="label">Expiry: </span><span class="val">{{ expiry }}</span></span>
-      <span><span class="label">Spot: </span><span class="val">{{ "{:,.2f}".format(spot) }}</span></span>
-      <span class="pcr-badge"><span class="label">PCR: </span><span class="val">{{ pcr }}</span></span>
+    <div class="divider"></div>
+
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Options Chain &mdash; NIFTY 50</div>
+        <div class="panel-meta">
+          <span><span class="label">Expiry: </span><span class="val">{{ expiry }}</span></span>
+          <span><span class="label">Spot: </span><span class="val">{{ "{:,.2f}".format(spot) }}</span></span>
+          <span class="pcr-badge"><span class="label">PCR: </span><span class="val">{{ pcr }}</span></span>
+        </div>
+      </div>
+      <div class="chain-scroll">
+        <table class="chain-table">
+          <thead>
+            <tr>
+              <th class="ce-hdr">CE OI Chg</th>
+              <th class="ce-hdr">CE OI</th>
+              <th class="ce-hdr">CE LTP</th>
+              <th class="strike-hdr">Strike</th>
+              <th class="pe-hdr">PE LTP</th>
+              <th class="pe-hdr">PE OI</th>
+              <th class="pe-hdr">PE OI Chg</th>
+            </tr>
+          </thead>
+          <tbody id="chain-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="ai-panel">
+      <div class="ai-header">
+        <div class="ai-title">AI Command Bar</div>
+        <button class="ai-settings-btn" id="settings-btn" title="API Key Settings">&#9881;</button>
+      </div>
+      <div class="ai-input-row">
+        <input type="text" class="ai-input" id="ai-input" placeholder='Ask about markets... e.g. "Analyze Nifty PCR for tomorrow"' autocomplete="off">
+        <button class="ai-send" id="ai-send">Send</button>
+      </div>
+      <div class="ai-response" id="ai-response"></div>
     </div>
   </div>
-  <div class="chain-scroll">
-    <table class="chain-table">
-      <thead>
-        <tr>
-          <th class="ce-hdr">CE OI Chg</th>
-          <th class="ce-hdr">CE OI</th>
-          <th class="ce-hdr">CE LTP</th>
-          <th class="strike-hdr">Strike</th>
-          <th class="pe-hdr">PE LTP</th>
-          <th class="pe-hdr">PE OI</th>
-          <th class="pe-hdr">PE OI Chg</th>
-        </tr>
-      </thead>
-      <tbody id="chain-body"></tbody>
-    </table>
-  </div>
-</div>
 
-<div class="divider"></div>
-
-<div class="ai-panel">
-  <div class="ai-header">
-    <div class="ai-title">AI Command Bar</div>
-    <button class="ai-settings-btn" id="settings-btn" title="API Key Settings">&#9881;</button>
+  <!-- Right Sidebar: Watchlist -->
+  <div class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">My Watchlist</div>
+      <button class="add-stock-btn" id="add-stock-btn" title="Add stock">+</button>
+    </div>
+    <div class="add-stock-row" id="add-stock-row">
+      <input type="text" class="add-stock-input" id="add-stock-input" placeholder="e.g. INFY" autocomplete="off">
+      <button class="add-stock-submit" id="add-stock-submit">Add</button>
+    </div>
+    <div class="watchlist-items" id="watchlist-items"></div>
   </div>
-  <div class="ai-input-row">
-    <input type="text" class="ai-input" id="ai-input" placeholder="Ask about markets... e.g. &quot;Analyze Nifty PCR for tomorrow&quot;" autocomplete="off">
-    <button class="ai-send" id="ai-send">Send</button>
-  </div>
-  <div class="ai-response" id="ai-response"></div>
 </div>
 
 <!-- Settings Modal -->
@@ -402,6 +406,7 @@
 </div>
 
 <script>
+// ── Stock Cards ──
 const stocks = {{ stocks | tojson }};
 const grid = document.getElementById("grid");
 
@@ -427,13 +432,10 @@ stocks.forEach(s => {
     </div>`;
 });
 
-// Options chain
+// ── Options Chain ──
 const chain = {{ chain | tojson }};
 const chainBody = document.getElementById("chain-body");
-
-function fmtNum(n) {
-  return n.toLocaleString("en-IN");
-}
+function fmtNum(n) { return n.toLocaleString("en-IN"); }
 
 chain.forEach(r => {
   const cls = r.is_atm ? ' class="atm-row"' : '';
@@ -451,6 +453,167 @@ chain.forEach(r => {
     <td class="pe-col ${peChgCls}">${peChgSign}${fmtNum(r.pe_oi_change)}</td>
   </tr>`;
 });
+
+// ── Watchlist ──
+const DEFAULT_WATCHLIST = {{ stocks | map(attribute='symbol') | list | tojson }};
+let watchlist = JSON.parse(localStorage.getItem('watchlist')) || [...DEFAULT_WATCHLIST];
+let watchlistData = {};
+let activeSymbol = null;
+
+// Seed initial data from server-rendered stocks
+stocks.forEach(s => { watchlistData[s.symbol] = s; });
+
+const wlContainer = document.getElementById('watchlist-items');
+const addBtn = document.getElementById('add-stock-btn');
+const addRow = document.getElementById('add-stock-row');
+const addInput = document.getElementById('add-stock-input');
+const addSubmit = document.getElementById('add-stock-submit');
+
+function saveWatchlist() { localStorage.setItem('watchlist', JSON.stringify(watchlist)); }
+
+function renderWatchlist() {
+  wlContainer.innerHTML = '';
+  watchlist.forEach(sym => {
+    const d = watchlistData[sym] || { price: 0, pct: 0, rsi: 50, change: 0 };
+    const dir = d.change >= 0 ? 'up' : 'down';
+    const arrow = d.change >= 0 ? '&#9650;' : '&#9660;';
+    const sign = d.pct >= 0 ? '+' : '';
+    const isActive = sym === activeSymbol ? ' active' : '';
+    wlContainer.innerHTML += `
+      <div class="wl-item${isActive}" data-symbol="${sym}">
+        <div class="wl-info">
+          <div class="wl-symbol">${sym}</div>
+          <div class="wl-price-row">
+            <span class="wl-cmp">${d.price.toLocaleString("en-IN", { minimumFractionDigits: 2 })}</span>
+            <span class="wl-arrow ${dir}">${arrow} ${sign}${d.pct.toFixed(2)}%</span>
+            <span class="wl-rsi">RSI ${d.rsi.toFixed(1)}</span>
+          </div>
+        </div>
+        <button class="wl-remove" data-sym="${sym}" title="Remove">&times;</button>
+      </div>`;
+  });
+
+  // Bind clicks
+  wlContainer.querySelectorAll('.wl-item').forEach(el => {
+    el.addEventListener('click', e => {
+      if (e.target.classList.contains('wl-remove')) return;
+      loadTechnicals(el.dataset.symbol);
+    });
+  });
+  wlContainer.querySelectorAll('.wl-remove').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const sym = btn.dataset.sym;
+      watchlist = watchlist.filter(s => s !== sym);
+      saveWatchlist();
+      if (activeSymbol === sym) {
+        activeSymbol = null;
+        document.getElementById('tech-panel').classList.remove('visible');
+      }
+      renderWatchlist();
+    });
+  });
+}
+
+// Add stock
+addBtn.addEventListener('click', () => {
+  addRow.classList.toggle('visible');
+  if (addRow.classList.contains('visible')) addInput.focus();
+});
+
+function addStock() {
+  const sym = addInput.value.trim().toUpperCase();
+  if (!sym || watchlist.includes(sym)) { addInput.value = ''; return; }
+  watchlist.push(sym);
+  saveWatchlist();
+  addInput.value = '';
+  addRow.classList.remove('visible');
+  // Fetch price for new stock
+  fetchWatchlistPrices([sym]).then(() => renderWatchlist());
+}
+addSubmit.addEventListener('click', addStock);
+addInput.addEventListener('keydown', e => { if (e.key === 'Enter') addStock(); });
+
+async function fetchWatchlistPrices(symbols) {
+  if (!symbols.length) return;
+  try {
+    const resp = await fetch('/api/watchlist-prices?symbols=' + symbols.join(','));
+    const data = await resp.json();
+    if (Array.isArray(data)) {
+      data.forEach(d => { watchlistData[d.symbol] = d; });
+    }
+  } catch (e) { /* silent */ }
+}
+
+// ── Technicals ──
+const techPanel = document.getElementById('tech-panel');
+const techTitle = document.getElementById('tech-title');
+const techContent = document.getElementById('tech-content');
+document.getElementById('tech-close').addEventListener('click', () => {
+  techPanel.classList.remove('visible');
+  activeSymbol = null;
+  renderWatchlist();
+});
+
+async function loadTechnicals(symbol) {
+  activeSymbol = symbol;
+  renderWatchlist();
+  techPanel.classList.add('visible');
+  techTitle.textContent = `Technicals — ${symbol}`;
+  techContent.innerHTML = '<span class="tech-loading">Loading technicals...</span>';
+  techPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  try {
+    const resp = await fetch(`/api/technicals?symbol=${symbol}`);
+    const d = await resp.json();
+    if (d.error) {
+      techContent.innerHTML = `<span class="tech-loading" style="color:#ff3333">Error: ${d.error}</span>`;
+      return;
+    }
+
+    const rsiColor = d.rsi > 70 ? '#ff3333' : (d.rsi < 30 ? '#33ff33' : '#ff8c00');
+    const rsiLabel = d.rsi > 70 ? 'Overbought' : (d.rsi < 30 ? 'Oversold' : 'Neutral');
+    const macdColor = d.macd.histogram >= 0 ? '#33ff33' : '#ff3333';
+    const macdLabel = d.macd.histogram >= 0 ? 'Bullish' : 'Bearish';
+
+    techContent.innerHTML = `
+      <div class="tech-grid">
+        <div class="tech-card">
+          <div class="tech-card-title">RSI (14)</div>
+          <div class="tech-val" style="color:${rsiColor}">${d.rsi}</div>
+          <div class="tech-sub">${rsiLabel}</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-card-title">MACD (12,26,9)</div>
+          <div class="tech-val" style="color:${macdColor}">${d.macd.line}</div>
+          <div class="tech-sub">Signal: ${d.macd.signal} | Hist: ${d.macd.histogram}</div>
+          <div class="tech-sub">${macdLabel}</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-card-title">Moving Averages</div>
+          <div class="tech-row"><span class="tech-row-label">20 DMA</span><span>${d.dma.dma20.toLocaleString("en-IN", {minimumFractionDigits:2})}</span></div>
+          <div class="tech-row"><span class="tech-row-label">50 DMA</span><span>${d.dma.dma50.toLocaleString("en-IN", {minimumFractionDigits:2})}</span></div>
+          <div class="tech-row"><span class="tech-row-label">200 DMA</span><span>${d.dma.dma200.toLocaleString("en-IN", {minimumFractionDigits:2})}</span></div>
+          <div class="tech-sub" style="margin-top:6px">${d.price > d.dma.dma200 ? 'Above 200 DMA — Bullish' : 'Below 200 DMA — Bearish'}</div>
+        </div>
+        <div class="tech-card">
+          <div class="tech-card-title">Support / Resistance</div>
+          <div class="tech-row"><span class="tech-row-label">Resistance</span><span style="color:#ff3333">${d.levels.resistance.toLocaleString("en-IN", {minimumFractionDigits:2})}</span></div>
+          <div class="tech-row"><span class="tech-row-label">R1</span><span style="color:#ff3333">${d.levels.r1.toLocaleString("en-IN", {minimumFractionDigits:2})}</span></div>
+          <div class="tech-row"><span class="tech-row-label">Pivot</span><span style="color:#ff8c00">${d.levels.pivot.toLocaleString("en-IN", {minimumFractionDigits:2})}</span></div>
+          <div class="tech-row"><span class="tech-row-label">S1</span><span style="color:#33ff33">${d.levels.s1.toLocaleString("en-IN", {minimumFractionDigits:2})}</span></div>
+          <div class="tech-row"><span class="tech-row-label">Support</span><span style="color:#33ff33">${d.levels.support.toLocaleString("en-IN", {minimumFractionDigits:2})}</span></div>
+        </div>
+      </div>`;
+  } catch (err) {
+    techContent.innerHTML = `<span class="tech-loading" style="color:#ff3333">Network error: ${err.message}</span>`;
+  }
+}
+
+// Initial render + fetch any watchlist stocks not already loaded
+renderWatchlist();
+const missing = watchlist.filter(s => !watchlistData[s]);
+if (missing.length) fetchWatchlistPrices(missing).then(() => renderWatchlist());
 
 // ── AI Command Bar ──
 const aiInput    = document.getElementById('ai-input');
@@ -479,43 +642,33 @@ function updateKeyUI() {
   }
 }
 
-// Settings modal
 settingsBtn.addEventListener('click', () => {
   apiKeyInput.value = getApiKey();
   modalOverlay.classList.add('visible');
   apiKeyInput.focus();
 });
 modalCancel.addEventListener('click', () => modalOverlay.classList.remove('visible'));
-modalOverlay.addEventListener('click', e => {
-  if (e.target === modalOverlay) modalOverlay.classList.remove('visible');
-});
+modalOverlay.addEventListener('click', e => { if (e.target === modalOverlay) modalOverlay.classList.remove('visible'); });
 modalSave.addEventListener('click', () => {
   const key = apiKeyInput.value.trim();
-  if (key) {
-    sessionStorage.setItem('anthropic_api_key', key);
-  } else {
-    sessionStorage.removeItem('anthropic_api_key');
-  }
+  if (key) sessionStorage.setItem('anthropic_api_key', key);
+  else sessionStorage.removeItem('anthropic_api_key');
   updateKeyUI();
   modalOverlay.classList.remove('visible');
 });
 
-// Send query
 async function sendQuery() {
   const msg = aiInput.value.trim();
   if (!msg) return;
-
   const key = getApiKey();
   if (!key) {
-    aiResponse.textContent = 'ERROR: No API key set. Click the ⚙ icon to configure your Anthropic API key.';
+    aiResponse.textContent = 'ERROR: No API key set. Click the gear icon to configure your Anthropic API key.';
     aiResponse.className = 'ai-response visible error';
     return;
   }
-
   aiSend.disabled = true;
   aiResponse.textContent = '> Processing query...';
   aiResponse.className = 'ai-response visible ai-typing';
-
   try {
     const resp = await fetch('/api/chat', {
       method: 'POST',
@@ -523,26 +676,15 @@ async function sendQuery() {
       body: JSON.stringify({ api_key: key, message: msg }),
     });
     const data = await resp.json();
-    if (data.error) {
-      aiResponse.textContent = 'ERROR: ' + data.error;
-      aiResponse.className = 'ai-response visible error';
-    } else {
-      aiResponse.textContent = data.reply;
-      aiResponse.className = 'ai-response visible';
-    }
+    if (data.error) { aiResponse.textContent = 'ERROR: ' + data.error; aiResponse.className = 'ai-response visible error'; }
+    else { aiResponse.textContent = data.reply; aiResponse.className = 'ai-response visible'; }
   } catch (err) {
     aiResponse.textContent = 'ERROR: Network error — ' + err.message;
     aiResponse.className = 'ai-response visible error';
-  } finally {
-    aiSend.disabled = false;
-  }
+  } finally { aiSend.disabled = false; }
 }
-
 aiSend.addEventListener('click', sendQuery);
-aiInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') sendQuery();
-});
-
+aiInput.addEventListener('keydown', e => { if (e.key === 'Enter') sendQuery(); });
 updateKeyUI();
 </script>
 
