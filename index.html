@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Bloomberg Terminal</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0a0a0a;--panel:#111;--border:#222;--green:#00ff41;--amber:#ffb000;
+--red:#ff3333;--blue:#4fc3f7;--white:#e0e0e0;--dim:#666;--input-bg:#1a1a1a;
+}
+body{font-family:'Courier New',monospace;background:var(--bg);color:var(--green);font-size:13px;overflow-x:hidden;min-height:100vh}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border)}
+
+/* HEADER */
+.header{background:#000;border-bottom:1px solid var(--border);padding:6px 10px;display:flex;flex-wrap:wrap;align-items:center;gap:8px;position:sticky;top:0;z-index:100}
+.logo{color:var(--amber);font-weight:bold;font-size:15px;letter-spacing:2px}
+.index-ticker{display:flex;gap:12px;flex-wrap:wrap;flex:1;justify-content:center}
+.idx{display:flex;gap:4px;align-items:center;font-size:11px}
+.idx .name{color:var(--amber)}
+.idx .val{color:var(--white)}
+.idx .chg.up{color:var(--green)}.idx .chg.down{color:var(--red)}
+.hdr-right{display:flex;gap:8px;align-items:center}
+.hdr-btn{background:none;border:1px solid var(--border);color:var(--amber);padding:4px 8px;font-family:inherit;font-size:11px;cursor:pointer;border-radius:2px}
+.hdr-btn:hover{background:var(--border)}
+.clock{color:var(--dim);font-size:11px}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);background:#050505;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:8px 16px;color:var(--dim);cursor:pointer;white-space:nowrap;font-size:12px;border-bottom:2px solid transparent;transition:.2s}
+.tab.active{color:var(--amber);border-bottom-color:var(--amber)}
+.tab:hover{color:var(--white)}
+
+/* PANELS */
+.tab-content{display:none;padding:8px}.tab-content.active{display:block}
+
+/* WATCHLIST TABLE */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse}
+th{background:#0d0d0d;color:var(--amber);text-align:left;padding:6px 8px;font-size:11px;position:sticky;top:0;white-space:nowrap;border-bottom:1px solid var(--border)}
+td{padding:6px 8px;border-bottom:1px solid #1a1a1a;font-size:12px;white-space:nowrap}
+tr:hover{background:#1a1a1a}
+.up{color:var(--green)}.down{color:var(--red)}
+.spark{width:60px;height:20px}
+
+/* OPTIONS CHAIN */
+.oc-header{display:flex;justify-content:space-between;align-items:center;padding:8px;flex-wrap:wrap;gap:8px}
+.oc-header select{background:var(--input-bg);color:var(--green);border:1px solid var(--border);padding:4px 8px;font-family:inherit;font-size:12px}
+.oc-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:0}
+.oc-side{overflow-x:auto}
+.oc-strike{background:#0d0d0d;display:flex;flex-direction:column;align-items:center;justify-content:start}
+.oc-strike div,.oc-side td,.oc-side th{font-size:11px}
+.oc-strike div{padding:6px 10px;border-bottom:1px solid #1a1a1a;color:var(--amber);width:100%;text-align:center}
+.oc-side table{width:100%}
+.oc-side th{font-size:10px;padding:4px 6px}
+.oc-side td{padding:4px 6px;font-size:11px}
+.itm{background:rgba(0,255,65,.04)}
+
+/* AI BAR */
+.ai-section{padding:8px}
+.ai-box{border:1px solid var(--border);border-radius:4px;background:var(--panel);overflow:hidden}
+.ai-messages{height:45vh;overflow-y:auto;padding:10px}
+.ai-msg{margin-bottom:10px;line-height:1.5}
+.ai-msg.user{color:var(--amber)}.ai-msg.assistant{color:var(--green)}
+.ai-msg .role{font-size:10px;color:var(--dim);margin-bottom:2px}
+.ai-input-row{display:flex;border-top:1px solid var(--border)}
+.ai-input{flex:1;background:var(--input-bg);border:none;color:var(--green);padding:10px;font-family:inherit;font-size:13px;outline:none}
+.ai-send{background:var(--amber);color:#000;border:none;padding:10px 16px;font-family:inherit;font-weight:bold;cursor:pointer;font-size:13px}
+.ai-send:disabled{opacity:.4}
+
+/* SETTINGS MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);padding:20px;border-radius:6px;width:90%;max-width:400px}
+.modal h3{color:var(--amber);margin-bottom:12px}
+.modal label{color:var(--dim);font-size:11px;display:block;margin-bottom:4px}
+.modal input{width:100%;background:var(--input-bg);border:1px solid var(--border);color:var(--green);padding:8px;font-family:inherit;font-size:12px;margin-bottom:12px;border-radius:2px}
+.modal-btns{display:flex;gap:8px;justify-content:flex-end}
+.modal-btns button{padding:6px 16px;font-family:inherit;cursor:pointer;border-radius:2px;font-size:12px}
+.btn-save{background:var(--green);color:#000;border:none;font-weight:bold}
+.btn-cancel{background:none;border:1px solid var(--border);color:var(--white)}
+
+/* NEWS */
+.news-item{padding:10px 8px;border-bottom:1px solid #1a1a1a}
+.news-item .time{color:var(--dim);font-size:10px}.news-item .headline{color:var(--white);font-size:12px;margin-top:2px}
+.news-item .src{color:var(--amber);font-size:10px;margin-top:2px}
+
+/* LOADING */
+.loading{text-align:center;padding:40px;color:var(--dim)}
+.loading::after{content:'';display:inline-block;width:12px;height:12px;border:2px solid var(--dim);border-top-color:var(--green);border-radius:50%;animation:spin .6s linear infinite;margin-left:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* SPARKLINE */
+.spark-up{stroke:var(--green)}.spark-down{stroke:var(--red)}
+
+/* STATUS BAR */
+.status-bar{position:fixed;bottom:0;left:0;right:0;background:#000;border-top:1px solid var(--border);padding:4px 10px;display:flex;justify-content:space-between;font-size:10px;color:var(--dim);z-index:100}
+
+/* RESPONSIVE */
+@media(max-width:600px){
+  .header{padding:4px 6px}
+  .logo{font-size:12px}
+  .index-ticker{gap:6px}
+  .idx{font-size:10px}
+  td,th{padding:4px 5px;font-size:11px}
+  .tab{padding:6px 10px;font-size:11px}
+  .ai-messages{height:50vh}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">BLOOMBERG</div>
+  <div class="index-ticker" id="indices"></div>
+  <div class="hdr-right">
+    <span class="clock" id="clock"></span>
+    <button class="hdr-btn" onclick="toggleSettings()">SETTINGS</button>
+    <button class="hdr-btn" onclick="refreshAll()">REFRESH</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" data-tab="watchlist">WATCHLIST</div>
+  <div class="tab" data-tab="options">OPTIONS</div>
+  <div class="tab" data-tab="ai">AI TERMINAL</div>
+  <div class="tab" data-tab="news">NEWS</div>
+</div>
+
+<!-- WATCHLIST -->
+<div class="tab-content active" id="watchlist">
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr>
+        <th>SYMBOL</th><th>LTP</th><th>CHG</th><th>CHG%</th><th>OPEN</th><th>HIGH</th><th>LOW</th><th>VOL</th><th>TREND</th>
+      </tr></thead>
+      <tbody id="watchlist-body"><tr><td colspan="9" class="loading">Loading market data</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- OPTIONS -->
+<div class="tab-content" id="options">
+  <div class="oc-header">
+    <div>
+      <span style="color:var(--amber);font-weight:bold">OPTIONS CHAIN</span>
+      <select id="oc-symbol" onchange="renderOptions()">
+        <option>RELIANCE</option><option>HDFCBANK</option><option>TCS</option><option>NIFTY</option><option>BANKNIFTY</option>
+      </select>
+      <select id="oc-expiry" onchange="renderOptions()">
+        <option>27-MAR-2026</option><option>03-APR-2026</option><option>24-APR-2026</option>
+      </select>
+    </div>
+    <div style="color:var(--dim);font-size:11px">Spot: <span id="oc-spot" style="color:var(--white)">—</span></div>
+  </div>
+  <div class="oc-grid">
+    <div class="oc-side" id="oc-calls"></div>
+    <div class="oc-strike" id="oc-strikes"></div>
+    <div class="oc-side" id="oc-puts"></div>
+  </div>
+</div>
+
+<!-- AI TERMINAL -->
+<div class="tab-content" id="ai">
+  <div class="ai-section">
+    <div class="ai-box">
+      <div class="ai-messages" id="ai-messages">
+        <div class="ai-msg assistant"><div class="role">SYSTEM</div>Bloomberg AI Terminal ready. Configure your Anthropic API key in Settings to begin. Ask about stocks, markets, analysis, or any financial query.</div>
+      </div>
+      <div class="ai-input-row">
+        <input class="ai-input" id="ai-input" placeholder="Ask Bloomberg AI..." onkeydown="if(event.key==='Enter')sendAI()">
+        <button class="ai-send" id="ai-send" onclick="sendAI()">SEND</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEWS -->
+<div class="tab-content" id="news">
+  <div id="news-feed"><div class="loading">Loading financial news</div></div>
+</div>
+
+<!-- STATUS BAR -->
+<div class="status-bar">
+  <span id="status-msg">READY</span>
+  <span id="last-update">—</span>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal-overlay" id="settings-modal">
+  <div class="modal">
+    <h3>SETTINGS</h3>
+    <label>ANTHROPIC API KEY</label>
+    <input type="password" id="api-key-input" placeholder="sk-ant-...">
+    <label>CORS PROXY</label>
+    <input id="cors-proxy-input" placeholder="https://corsproxy.io/?">
+    <label>REFRESH INTERVAL (seconds)</label>
+    <input type="number" id="refresh-interval-input" value="30" min="10" max="300">
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="toggleSettings()">CANCEL</button>
+      <button class="btn-save" onclick="saveSettings()">SAVE</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── CONFIG ──
+const SYMBOLS = ['RELIANCE.NS','HDFCBANK.NS','TCS.NS','SUNPHARMA.NS','HAL.NS','HINDUNILVR.NS','TATAMOTORS.NS','NTPC.NS','AXISBANK.NS','ICICIBANK.NS'];
+const INDICES = ['^NSEI','^NSEBANK','^BSESN'];
+const INDEX_NAMES = {'%5ENSEI':'NIFTY 50','%5ENSEBANK':'BANK NIFTY','%5EBSESN':'SENSEX'};
+
+let corsProxy = localStorage.getItem('corsProxy') || 'https://corsproxy.io/?';
+let apiKey = localStorage.getItem('anthropicKey') || '';
+let refreshInterval = parseInt(localStorage.getItem('refreshInterval') || '30');
+let refreshTimer = null;
+let aiHistory = [];
+
+// ── TABS ──
+document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+  document.querySelectorAll('.tab,.tab-content').forEach(e => e.classList.remove('active'));
+  t.classList.add('active');
+  document.getElementById(t.dataset.tab).classList.add('active');
+}));
+
+// ── CLOCK ──
+function updateClock() {
+  const d = new Date();
+  document.getElementById('clock').textContent = d.toLocaleTimeString('en-IN', {hour12:false}) + ' IST';
+}
+setInterval(updateClock, 1000); updateClock();
+
+// ── FETCH HELPER ──
+async function yf(endpoint) {
+  const url = `${corsProxy}${encodeURIComponent('https://query1.finance.yahoo.com' + endpoint)}`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error('Fetch failed: ' + r.status);
+  return r.json();
+}
+
+// ── INDICES ──
+async function fetchIndices() {
+  const el = document.getElementById('indices');
+  try {
+    const syms = INDICES.map(s => encodeURIComponent(s)).join(',');
+    const data = await yf(`/v7/finance/quote?symbols=${syms}`);
+    const quotes = data.quoteResponse.result;
+    el.innerHTML = quotes.map(q => {
+      const chg = q.regularMarketChange || 0;
+      const pct = q.regularMarketChangePercent || 0;
+      const dir = chg >= 0 ? 'up' : 'down';
+      const arrow = chg >= 0 ? '▲' : '▼';
+      const name = INDEX_NAMES[encodeURIComponent(q.symbol)] || q.symbol;
+      return `<div class="idx"><span class="name">${name}</span><span class="val">${fmt(q.regularMarketPrice)}</span><span class="chg ${dir}">${arrow} ${fmt(Math.abs(chg))} (${pct.toFixed(2)}%)</span></div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<span style="color:var(--red);font-size:11px">Index data unavailable</span>';
+    console.error('Indices error:', e);
+  }
+}
+
+// ── WATCHLIST ──
+async function fetchWatchlist() {
+  const tbody = document.getElementById('watchlist-body');
+  try {
+    const syms = SYMBOLS.join(',');
+    const data = await yf(`/v7/finance/quote?symbols=${syms}`);
+    const quotes = data.quoteResponse.result;
+    tbody.innerHTML = quotes.map(q => {
+      const chg = q.regularMarketChange || 0;
+      const pct = q.regularMarketChangePercent || 0;
+      const dir = chg >= 0 ? 'up' : 'down';
+      const arrow = chg >= 0 ? '▲' : '▼';
+      const vol = q.regularMarketVolume || 0;
+      const spark = genSparkline(q.regularMarketPrice, chg);
+      return `<tr>
+        <td style="color:var(--amber);font-weight:bold">${q.symbol.replace('.NS','')}</td>
+        <td class="${dir}">${fmt(q.regularMarketPrice)}</td>
+        <td class="${dir}">${arrow} ${fmt(Math.abs(chg))}</td>
+        <td class="${dir}">${pct.toFixed(2)}%</td>
+        <td>${fmt(q.regularMarketOpen)}</td>
+        <td>${fmt(q.regularMarketDayHigh)}</td>
+        <td>${fmt(q.regularMarketDayLow)}</td>
+        <td>${fmtVol(vol)}</td>
+        <td>${spark}</td>
+      </tr>`;
+    }).join('');
+    setStatus('Market data updated');
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="9" style="color:var(--red);padding:20px">Failed to load data. Try a different CORS proxy in Settings.<br><small>${e.message}</small></td></tr>`;
+    console.error('Watchlist error:', e);
+  }
+}
+
+function fmt(n) { return n != null ? Number(n).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—'; }
+function fmtVol(n) { if(n >= 1e7) return (n/1e7).toFixed(2)+'Cr'; if(n >= 1e5) return (n/1e5).toFixed(2)+'L'; if(n>=1e3) return (n/1e3).toFixed(1)+'K'; return n; }
+
+function genSparkline(price, chg) {
+  const cls = chg >= 0 ? 'spark-up' : 'spark-down';
+  const pts = [];
+  let p = price - Math.abs(chg) * 2;
+  for(let i=0;i<12;i++){p += (Math.random()-0.45)*Math.abs(chg)*0.5; pts.push(p);}
+  pts.push(price);
+  const min=Math.min(...pts), max=Math.max(...pts), range=max-min||1;
+  const coords = pts.map((v,i)=>`${(i/(pts.length-1))*58+1},${19-((v-min)/range)*17+1}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 60 20"><polyline points="${coords}" fill="none" class="${cls}" stroke-width="1.5"/></svg>`;
+}
+
+// ── OPTIONS CHAIN (Realistic Dummy Data) ──
+function renderOptions() {
+  const sym = document.getElementById('oc-symbol').value;
+  const spots = {RELIANCE:2950,HDFCBANK:1780,TCS:3650,NIFTY:23500,BANKNIFTY:50800};
+  const spot = spots[sym] || 2000;
+  document.getElementById('oc-spot').textContent = fmt(spot);
+
+  const step = spot > 10000 ? 100 : 50;
+  const strikes = [];
+  for(let i=-8;i<=8;i++) strikes.push(spot + i * step - (spot % step));
+
+  const callsHtml = `<table><thead><tr><th>OI</th><th>Vol</th><th>LTP</th><th>Bid</th><th>Ask</th><th>IV%</th></tr></thead><tbody>` +
+    strikes.map(s => {
+      const diff = spot - s;
+      const itm = diff > 0;
+      const iv = (14 + Math.abs(diff)/spot*100 + Math.random()*4).toFixed(1);
+      const ltp = Math.max(0.5, diff + (parseFloat(iv)/100)*spot*0.04*(0.5+Math.random())).toFixed(2);
+      const bid = (ltp - 0.5 - Math.random()*2).toFixed(2);
+      const ask = (parseFloat(ltp) + 0.5 + Math.random()*2).toFixed(2);
+      const oi = fmtVol(Math.floor(Math.random()*5e6));
+      const vol = fmtVol(Math.floor(Math.random()*1e6));
+      return `<tr class="${itm?'itm':''}"><td>${oi}</td><td>${vol}</td><td class="up">${ltp}</td><td>${Math.max(0,bid).toFixed(2)}</td><td>${ask}</td><td>${iv}</td></tr>`;
+    }).join('') + `</tbody></table>`;
+
+  const putsHtml = `<table><thead><tr><th>IV%</th><th>Bid</th><th>Ask</th><th>LTP</th><th>Vol</th><th>OI</th></tr></thead><tbody>` +
+    strikes.map(s => {
+      const diff = s - spot;
+      const itm = diff > 0;
+      const iv = (14 + Math.abs(diff)/spot*100 + Math.random()*4).toFixed(1);
+      const ltp = Math.max(0.5, diff + (parseFloat(iv)/100)*spot*0.04*(0.5+Math.random())).toFixed(2);
+      const bid = (ltp - 0.5 - Math.random()*2).toFixed(2);
+      const ask = (parseFloat(ltp) + 0.5 + Math.random()*2).toFixed(2);
+      const oi = fmtVol(Math.floor(Math.random()*5e6));
+      const vol = fmtVol(Math.floor(Math.random()*1e6));
+      return `<tr class="${itm?'itm':''}"><td>${iv}</td><td>${Math.max(0,bid).toFixed(2)}</td><td>${ask}</td><td class="down">${ltp}</td><td>${vol}</td><td>${oi}</td></tr>`;
+    }).join('') + `</tbody></table>`;
+
+  const strikesHtml = `<div style="padding:6px;font-size:10px;color:var(--dim);border-bottom:1px solid #1a1a1a;font-weight:bold">STRIKE</div>` +
+    strikes.map(s => `<div>${fmt(s)}</div>`).join('');
+
+  document.getElementById('oc-calls').innerHTML = '<div style="text-align:center;color:var(--green);font-size:10px;padding:4px;background:#0d0d0d;font-weight:bold">CALLS</div>' + callsHtml;
+  document.getElementById('oc-puts').innerHTML = '<div style="text-align:center;color:var(--red);font-size:10px;padding:4px;background:#0d0d0d;font-weight:bold">PUTS</div>' + putsHtml;
+  document.getElementById('oc-strikes').innerHTML = strikesHtml;
+}
+
+// ── AI TERMINAL ──
+async function sendAI() {
+  const input = document.getElementById('ai-input');
+  const msg = input.value.trim();
+  if(!msg) return;
+  if(!apiKey) { addAIMsg('system','Set your Anthropic API key in Settings first.'); return; }
+
+  input.value = '';
+  addAIMsg('user', msg);
+  aiHistory.push({role:'user', content: msg});
+
+  const sendBtn = document.getElementById('ai-send');
+  sendBtn.disabled = true;
+
+  try {
+    const systemPrompt = `You are Bloomberg Terminal AI, an expert financial analyst assistant. You have deep knowledge of Indian and global markets, technical analysis, fundamental analysis, options trading, and macroeconomics. Be concise, data-driven, and use financial terminology. Format responses with clear structure.`;
+
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1024,
+        system: systemPrompt,
+        messages: aiHistory.slice(-10)
+      })
+    });
+
+    if(!resp.ok) {
+      const err = await resp.json().catch(()=>({}));
+      throw new Error(err.error?.message || `API error ${resp.status}`);
+    }
+
+    const data = await resp.json();
+    const reply = data.content[0].text;
+    aiHistory.push({role:'assistant', content: reply});
+    addAIMsg('assistant', reply);
+  } catch(e) {
+    addAIMsg('system', `Error: ${e.message}`);
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+function addAIMsg(role, text) {
+  const div = document.getElementById('ai-messages');
+  const labels = {user:'YOU',assistant:'BLOOMBERG AI',system:'SYSTEM'};
+  const m = document.createElement('div');
+  m.className = `ai-msg ${role}`;
+  m.innerHTML = `<div class="role">${labels[role]}</div>${escapeHtml(text).replace(/\n/g,'<br>')}`;
+  div.appendChild(m);
+  div.scrollTop = div.scrollHeight;
+}
+
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ── NEWS (generated from market context) ──
+function renderNews() {
+  const headlines = [
+    {time:'10:32',headline:'RBI Holds Repo Rate at 6.5%, Maintains Accommodative Stance',src:'Reuters'},
+    {time:'10:15',headline:'Reliance Industries Q4 Results: Net Profit Rises 12% YoY to ₹19,820 Cr',src:'Moneycontrol'},
+    {time:'09:58',headline:'Bank Nifty Hits All-Time High; HDFC Bank, ICICI Bank Lead Rally',src:'Economic Times'},
+    {time:'09:45',headline:'FII Net Buyers of ₹3,200 Cr in Cash Segment; DII Sell ₹890 Cr',src:'Bloomberg'},
+    {time:'09:30',headline:'HAL Bags ₹26,000 Cr Defence Order for Advanced Light Helicopters',src:'LiveMint'},
+    {time:'09:15',headline:'Tata Motors EV Sales Up 45% in March; Market Share Expands to 14%',src:'CNBC-TV18'},
+    {time:'09:00',headline:'NTPC Green Energy Arm Plans ₹50,000 Cr Investment in Solar Projects',src:'Business Standard'},
+    {time:'08:45',headline:'Axis Bank Completes Citibank India Consumer Business Integration',src:'Reuters'},
+    {time:'08:30',headline:'Sun Pharma Gets USFDA Approval for Generic Cardiovascular Drug',src:'Moneycontrol'},
+    {time:'08:15',headline:'Global Markets: Asian Stocks Mixed; Nikkei Down 0.3%, Hang Seng Up 0.8%',src:'Bloomberg'},
+    {time:'08:00',headline:'TCS Wins $2.1 Billion Deal from Major European Bank for Cloud Migration',src:'Economic Times'},
+    {time:'07:45',headline:'Crude Oil Falls Below $78; Brent Down 1.2% on Demand Concerns',src:'Reuters'},
+    {time:'07:30',headline:'HUL Launches Premium D2C Platform; Targets ₹5,000 Cr Revenue by FY28',src:'LiveMint'},
+    {time:'07:15',headline:'ICICI Bank Raises Fixed Deposit Rates by 25 bps Across Tenures',src:'CNBC-TV18'},
+    {time:'07:00',headline:'US Fed Minutes Signal Possible Rate Cut in June; Dollar Index Weakens',src:'Bloomberg'},
+  ];
+  document.getElementById('news-feed').innerHTML = headlines.map(n =>
+    `<div class="news-item"><span class="time">${n.time}</span><div class="headline">${n.headline}</div><div class="src">${n.src}</div></div>`
+  ).join('');
+}
+
+// ── SETTINGS ──
+function toggleSettings() {
+  const m = document.getElementById('settings-modal');
+  const show = !m.classList.contains('show');
+  m.classList.toggle('show');
+  if(show) {
+    document.getElementById('api-key-input').value = apiKey;
+    document.getElementById('cors-proxy-input').value = corsProxy;
+    document.getElementById('refresh-interval-input').value = refreshInterval;
+  }
+}
+
+function saveSettings() {
+  apiKey = document.getElementById('api-key-input').value.trim();
+  corsProxy = document.getElementById('cors-proxy-input').value.trim() || 'https://corsproxy.io/?';
+  refreshInterval = parseInt(document.getElementById('refresh-interval-input').value) || 30;
+  localStorage.setItem('anthropicKey', apiKey);
+  localStorage.setItem('corsProxy', corsProxy);
+  localStorage.setItem('refreshInterval', refreshInterval);
+  toggleSettings();
+  setStatus('Settings saved');
+  refreshAll();
+}
+
+// ── STATUS ──
+function setStatus(msg) {
+  document.getElementById('status-msg').textContent = msg;
+  document.getElementById('last-update').textContent = new Date().toLocaleTimeString('en-IN',{hour12:false});
+}
+
+// ── REFRESH ──
+async function refreshAll() {
+  setStatus('Refreshing...');
+  await Promise.all([fetchIndices(), fetchWatchlist()]);
+  renderOptions();
+  renderNews();
+  clearInterval(refreshTimer);
+  refreshTimer = setInterval(() => { fetchIndices(); fetchWatchlist(); }, refreshInterval * 1000);
+}
+
+// ── INIT ──
+refreshAll();
+</script>
+</body>
+</html>
