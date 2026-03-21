@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinTerminal | Indian Equity Markets</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+    <!-- Top Market Pulse Strip -->
+    <header class="market-pulse">
+        <div class="pulse-brand">
+            <span class="brand-icon">◈</span>
+            <span class="brand-name">FIN<span class="accent">TERMINAL</span></span>
+        </div>
+        <div class="pulse-strip" id="pulseStrip">
+            <div class="pulse-item" id="pulse-nifty">
+                <span class="pulse-label">NIFTY 50</span>
+                <span class="pulse-value" id="pv-nifty">--</span>
+                <span class="pulse-change" id="pc-nifty">--</span>
+            </div>
+            <div class="pulse-item" id="pulse-banknifty">
+                <span class="pulse-label">BANK NIFTY</span>
+                <span class="pulse-value" id="pv-banknifty">--</span>
+                <span class="pulse-change" id="pc-banknifty">--</span>
+            </div>
+            <div class="pulse-item" id="pulse-sensex">
+                <span class="pulse-label">SENSEX</span>
+                <span class="pulse-value" id="pv-sensex">--</span>
+                <span class="pulse-change" id="pc-sensex">--</span>
+            </div>
+            <div class="pulse-item" id="pulse-vix">
+                <span class="pulse-label">INDIA VIX</span>
+                <span class="pulse-value" id="pv-vix">--</span>
+                <span class="pulse-change" id="pc-vix">--</span>
+            </div>
+        </div>
+        <div class="pulse-time" id="pulseTime">--:--:--</div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="panel-nav">
+        <button class="nav-tab active" data-panel="overview">
+            <span class="tab-icon">◉</span> Market Overview
+        </button>
+        <button class="nav-tab" data-panel="stock">
+            <span class="tab-icon">◈</span> Stock Terminal
+        </button>
+        <button class="nav-tab" data-panel="options">
+            <span class="tab-icon">◆</span> Options Desk
+        </button>
+        <button class="nav-tab" data-panel="ai">
+            <span class="tab-icon">◇</span> AI Command
+        </button>
+        <button class="nav-tab" data-panel="watchlist">
+            <span class="tab-icon">◎</span> Watchlist
+        </button>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="terminal-main">
+
+        <!-- Panel 1: Market Overview -->
+        <section class="panel active" id="panel-overview">
+            <div class="panel-grid overview-grid">
+                <!-- Index Charts -->
+                <div class="card card-wide">
+                    <div class="card-header">
+                        <h3>Index Performance</h3>
+                        <span class="card-badge live-badge">● LIVE</span>
+                    </div>
+                    <div class="index-charts">
+                        <div class="index-chart-item">
+                            <div class="index-chart-header">
+                                <span class="index-name">NIFTY 50</span>
+                                <span class="index-val" id="ov-nifty-val">--</span>
+                                <span class="index-chg" id="ov-nifty-chg">--</span>
+                            </div>
+                            <div class="sparkline-container" id="chart-nifty"></div>
+                        </div>
+                        <div class="index-chart-item">
+                            <div class="index-chart-header">
+                                <span class="index-name">BANK NIFTY</span>
+                                <span class="index-val" id="ov-banknifty-val">--</span>
+                                <span class="index-chg" id="ov-banknifty-chg">--</span>
+                            </div>
+                            <div class="sparkline-container" id="chart-banknifty"></div>
+                        </div>
+                        <div class="index-chart-item">
+                            <div class="index-chart-header">
+                                <span class="index-name">SENSEX</span>
+                                <span class="index-val" id="ov-sensex-val">--</span>
+                                <span class="index-chg" id="ov-sensex-chg">--</span>
+                            </div>
+                            <div class="sparkline-container" id="chart-sensex"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VIX Gauge -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>India VIX</h3>
+                    </div>
+                    <div class="vix-gauge" id="vixGauge">
+                        <div class="vix-circle">
+                            <svg viewBox="0 0 120 120">
+                                <circle cx="60" cy="60" r="52" class="vix-bg"/>
+                                <circle cx="60" cy="60" r="52" class="vix-fill" id="vixArc"/>
+                            </svg>
+                            <div class="vix-value" id="vixValue">--</div>
+                            <div class="vix-label" id="vixLabel">Loading</div>
+                        </div>
+                        <div class="vix-scale">
+                            <span>0</span><span class="vix-low">Low Fear</span><span class="vix-mid">Moderate</span><span class="vix-high">High Fear</span><span>50</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FII/DII Flows -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>FII / DII Activity</h3>
+                        <span class="card-subtitle">Net (₹ Cr)</span>
+                    </div>
+                    <div class="fii-dii-container" id="fiiDiiContainer">
+                        <div class="flow-row">
+                            <span class="flow-label">FII/FPI</span>
+                            <div class="flow-bar-container">
+                                <div class="flow-bar fii-bar" id="fiiBar"></div>
+                            </div>
+                            <span class="flow-value" id="fiiValue">--</span>
+                        </div>
+                        <div class="flow-row">
+                            <span class="flow-label">DII</span>
+                            <div class="flow-bar-container">
+                                <div class="flow-bar dii-bar" id="diiBar"></div>
+                            </div>
+                            <span class="flow-value" id="diiValue">--</span>
+                        </div>
+                        <div class="flow-summary" id="flowSummary">
+                            <span>Net FII: <b id="fiiNet">--</b></span>
+                            <span>Net DII: <b id="diiNet">--</b></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Gainers -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Top Gainers</h3>
+                        <span class="card-badge green">▲ NSE</span>
+                    </div>
+                    <div class="stock-list" id="topGainers">
+                        <div class="stock-list-loading">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Top Losers -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Top Losers</h3>
+                        <span class="card-badge red">▼ NSE</span>
+                    </div>
+                    <div class="stock-list" id="topLosers">
+                        <div class="stock-list-loading">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Advance/Decline -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Market Breadth</h3>
+                    </div>
+                    <div class="breadth-container" id="breadthContainer">
+                        <div class="breadth-visual">
+                            <div class="breadth-bar">
+                                <div class="breadth-advance" id="breadthAdvance"></div>
+                                <div class="breadth-decline" id="breadthDecline"></div>
+                            </div>
+                        </div>
+                        <div class="breadth-stats">
+                            <div class="breadth-stat green">
+                                <span class="breadth-num" id="advanceCount">--</span>
+                                <span>Advancing</span>
+                            </div>
+                            <div class="breadth-stat neutral">
+                                <span class="breadth-num" id="unchangedCount">--</span>
+                                <span>Unchanged</span>
+                            </div>
+                            <div class="breadth-stat red">
+                                <span class="breadth-num" id="declineCount">--</span>
+                                <span>Declining</span>
+                            </div>
+                        </div>
+                        <div class="breadth-ratio">
+                            A/D Ratio: <span id="adRatio">--</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 2: Stock Terminal -->
+        <section class="panel" id="panel-stock">
+            <div class="stock-search-bar">
+                <span class="search-icon">⌕</span>
+                <input type="text" id="stockSearchInput" placeholder="Search stock... (e.g., RELIANCE, HDFCBANK, TCS)" autocomplete="off">
+                <button class="search-btn" id="stockSearchBtn">ANALYZE</button>
+            </div>
+            <div class="stock-terminal-content" id="stockTerminalContent">
+                <div class="stock-placeholder">
+                    <div class="placeholder-icon">◈</div>
+                    <div class="placeholder-text">Enter a stock symbol to begin analysis</div>
+                    <div class="placeholder-hint">Try: RELIANCE, HDFCBANK, TCS, INFY, TATAMOTORS</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 3: Options Desk -->
+        <section class="panel" id="panel-options">
+            <div class="options-header">
+                <div class="options-selector">
+                    <button class="opt-sel-btn active" data-index="NIFTY">NIFTY 50</button>
+                    <button class="opt-sel-btn" data-index="BANKNIFTY">BANK NIFTY</button>
+                    <button class="opt-sel-btn" data-index="SENSEX">SENSEX</button>
+                </div>
+                <div class="options-meta">
+                    <div class="opt-meta-item">
+                        <span class="opt-meta-label">PCR</span>
+                        <span class="opt-meta-value" id="optPCR">--</span>
+                    </div>
+                    <div class="opt-meta-item">
+                        <span class="opt-meta-label">Max Pain</span>
+                        <span class="opt-meta-value" id="optMaxPain">--</span>
+                    </div>
+                    <div class="opt-meta-item">
+                        <span class="opt-meta-label">Spot</span>
+                        <span class="opt-meta-value" id="optSpot">--</span>
+                    </div>
+                    <div class="opt-meta-item">
+                        <span class="opt-meta-label">Expiry</span>
+                        <span class="opt-meta-value" id="optExpiry">--</span>
+                    </div>
+                </div>
+            </div>
+            <div class="options-chain-container" id="optionsChainContainer">
+                <div class="stock-list-loading">Loading options chain...</div>
+            </div>
+        </section>
+
+        <!-- Panel 4: AI Command Bar -->
+        <section class="panel" id="panel-ai">
+            <div class="ai-container">
+                <div class="ai-header">
+                    <h3><span class="accent">◇</span> AI Market Analyst</h3>
+                    <span class="ai-model">Claude Sonnet 4.6</span>
+                </div>
+                <div class="ai-messages" id="aiMessages">
+                    <div class="ai-message system">
+                        <div class="ai-msg-content">
+                            <p>Welcome to the AI Command Bar. I'm your senior Indian equity market analyst.</p>
+                            <p>Try asking me:</p>
+                            <ul>
+                                <li>"What's the trend on RELIANCE?"</li>
+                                <li>"Should I buy Nifty 25000 CE for Thursday expiry?"</li>
+                                <li>"Summarize today's FII activity"</li>
+                                <li>"Compare HDFCBANK vs ICICIBANK technicals"</li>
+                            </ul>
+                            <p class="ai-note">⚠ Enter your Anthropic API key below to enable AI responses.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="ai-input-area">
+                    <div class="api-key-row" id="apiKeyRow">
+                        <input type="password" id="apiKeyInput" placeholder="Anthropic API Key (sk-ant-...)" class="api-key-input">
+                        <button class="api-key-btn" id="apiKeySave">Save Key</button>
+                    </div>
+                    <div class="ai-input-row">
+                        <input type="text" id="aiInput" placeholder="Ask about Indian markets..." autocomplete="off">
+                        <button class="ai-send-btn" id="aiSendBtn">SEND ▶</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Panel 5: Watchlist -->
+        <section class="panel" id="panel-watchlist">
+            <div class="watchlist-header">
+                <h3>My Watchlist</h3>
+                <div class="watchlist-add">
+                    <input type="text" id="watchlistAddInput" placeholder="Add symbol...">
+                    <button class="watchlist-add-btn" id="watchlistAddBtn">+ ADD</button>
+                </div>
+            </div>
+            <div class="watchlist-table-container">
+                <table class="watchlist-table" id="watchlistTable">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>CMP (₹)</th>
+                            <th>Change %</th>
+                            <th>RSI (14)</th>
+                            <th>Trend</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="watchlistBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Status Bar -->
+    <footer class="status-bar">
+        <span class="status-item">◈ FinTerminal v1.0</span>
+        <span class="status-item">NSE: <span id="statusMarket">--</span></span>
+        <span class="status-item">Data: Yahoo Finance / NSE</span>
+        <span class="status-item" id="statusRefresh">Last refresh: --</span>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
